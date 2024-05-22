@@ -1,0 +1,16 @@
+grpc:
+  port: 9091
+  timeout: 5s
+
+userMicroservice:
+  host: localhost
+  port: 5050
+
+
+reservationMicroservice:
+  host: localhost
+  port: 9090
+
+qrMicroservice:
+  host: localhost
+  port: 7070

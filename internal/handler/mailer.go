@@ -8,26 +8,34 @@ import (
 	"notification-service/pkg/logger"
 )
 
-// in user repo generate verReset code
-// getVerCode, getResetCode
+type VerificationCode struct {
+	Code string
+}
 
-func (h *Handler) SendWelcome(ctx context.Context, input *proto.EmailInput) (*proto.StatusResponse, error) {
+func (h *Handler) SendWelcome(ctx context.Context, input *proto.ContentInput) (*proto.StatusResponse, error) {
 	if input.GetEmail() == "" {
 		return nil, status.Error(codes.InvalidArgument, "email is required")
 	}
-	err := h.Service.Mailer.Send(input.GetEmail(), "user_welcome.html", nil)
+	if input.GetContent() == "" {
+		return nil, status.Error(codes.InvalidArgument, "content is required")
+	}
+	ver := VerificationCode{
+		Code: input.GetContent(),
+	}
+
+	err := h.Service.Mailer.Send(input.Email, "verification_code.html", ver)
 	if err != nil {
 		logger.Error(err)
-		return nil, status.Error(codes.Internal, "failed to send message: "+err.Error())
+		return &proto.StatusResponse{Status: false}, status.Error(codes.Internal, "failed to send message: "+err.Error())
 	}
 	return &proto.StatusResponse{Status: true}, nil
 }
 
-func (h *Handler) SendQR(ctx context.Context, input *proto.EmailInput) (*proto.StatusResponse, error) {
+func (h *Handler) SendQR(ctx context.Context, input *proto.ContentInput) (*proto.StatusResponse, error) {
 	if input.Email == "" {
 		return nil, status.Error(codes.InvalidArgument, "email is required")
 	}
-	err := h.Service.Mailer.Send(input.GetEmail(), "qr_code.html", nil)
+	err := h.Service.Mailer.Send(input.GetEmail(), "qr_code.html", input.GetContent())
 	if err != nil {
 		logger.Error(err)
 		return nil, status.Error(codes.Internal, "failed to send message: "+err.Error())

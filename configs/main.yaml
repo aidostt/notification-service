@@ -1,5 +1,5 @@
 grpc:
-  port: 9091
+  port: 6060
   timeout: 5s
 
 userMicroservice:

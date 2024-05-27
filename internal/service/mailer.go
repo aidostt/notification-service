@@ -67,18 +67,9 @@ func (s *MailerService) Send(recipient, templateFile string, data any) error {
 	go func() {
 		defer close(errChan)
 		var err error
-		for i := 1; i <= 3; i++ {
-			err = s.dialer.DialAndSend(msg)
-			// If everything worked, send nil to the channel.
-			if nil == err {
-				errChan <- nil
-				return
-			}
-			// If it didn't work, sleep for a short time and retry.
-			time.Sleep(500 * time.Millisecond)
-		}
-		// Send the error to the channel if all retries failed.
+		err = s.dialer.DialAndSend(msg)
 		errChan <- err
+		return
 	}()
 
 	// Wait for the go routine to send an error or nil.

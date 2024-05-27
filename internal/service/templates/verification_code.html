@@ -1,0 +1,100 @@
+{{ define "subject" }}Your Verification Code{{ end }}
+
+{{ define "plainBody" }}
+Your verification code is: {{ .Code }}
+{{ end }}
+
+{{ define "htmlBody" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333333;
+        }
+        .code {
+            font-size: 32px;
+            padding: 10px 30px;
+            margin: 20px 0;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 1px solid #e2e2e2;
+            letter-spacing: 10px;
+        }
+        .content {
+            max-width: 500px;
+            font-size: 16px;
+            color: #555555;
+            margin: 20px auto;
+        }
+        .codes span {
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e2e2;
+            display: inline-block;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="background-color: #f9f9f9; height: 100vh; width: 100%;">
+        <tr>
+            <td>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="container">
+                    <tr>
+                        <td class="header">
+                            Your Verification Code! Some text
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="content">
+                            Use the verification code below to log in or whatever you want.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="code">{{.Code}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <hr style="border: 1px solid #e2e2e27a; width: 100%;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h1>reservista</h1>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+{{ end }}

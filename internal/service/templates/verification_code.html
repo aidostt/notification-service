@@ -1,7 +1,7 @@
 {{ define "subject" }}Your Verification Code{{ end }}
 
 {{ define "plainBody" }}
-Your verification code is: {{ .Code }}
+Your verification code is: {{ .Content }}
 {{ end }}
 
 {{ define "htmlBody" }}
@@ -77,7 +77,7 @@ Your verification code is: {{ .Code }}
                     </tr>
                     <tr>
                         <td>
-                            <div class="code">{{.Code}}</div>
+                            <div class="code">{{.Content}}</div>
                         </td>
                     </tr>
                     <tr>

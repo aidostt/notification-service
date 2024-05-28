@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 	"notification-service/internal/config"
-	"notification-service/internal/handler"
+	"notification-service/internal/delivery"
 	"notification-service/internal/server"
 	"notification-service/internal/service"
 	"notification-service/pkg/dialog"
@@ -39,7 +39,7 @@ func Run(configPath, envPath string) {
 		Sender:   cfg.SMTP.Sender,
 		Dialog:   dial,
 	})
-	handlers := handler.NewHandler(services)
+	handlers := delivery.NewHandler(services)
 
 	// gRPC Server
 	srv := server.NewServer()

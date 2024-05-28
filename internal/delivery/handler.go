@@ -1,4 +1,4 @@
-package handler
+package delivery
 
 import (
 	proto "github.com/aidostt/protos/gen/go/reservista/mailer"

@@ -1,9 +1,14 @@
 package service
 
-import "notification-service/pkg/dialog"
+import (
+	"context"
+	"notification-service/pkg/dialog"
+)
 
 type Mailer interface {
 	Send(recipient, templateFile string, data interface{}) error
+	SendQR(string, context.Context, string, string, string) error
+	GenerateQRCodeBase64(string) (string, error)
 }
 
 type Services struct {

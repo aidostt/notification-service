@@ -1,16 +1,13 @@
-package handler
+package delivery
 
 import (
 	"context"
 	proto "github.com/aidostt/protos/gen/go/reservista/mailer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"notification-service/internal/domain"
 	"notification-service/pkg/logger"
 )
-
-type VerificationCode struct {
-	Code string
-}
 
 func (h *Handler) SendWelcome(ctx context.Context, input *proto.ContentInput) (*proto.StatusResponse, error) {
 	if input.GetEmail() == "" {
@@ -19,11 +16,11 @@ func (h *Handler) SendWelcome(ctx context.Context, input *proto.ContentInput) (*
 	if input.GetContent() == "" {
 		return nil, status.Error(codes.InvalidArgument, "content is required")
 	}
-	ver := VerificationCode{
-		Code: input.GetContent(),
+	contentInput := domain.ContentInput{
+		Content: input.GetContent(),
 	}
 
-	err := h.Service.Mailer.Send(input.Email, "verification_code.html", ver)
+	err := h.Service.Mailer.Send(input.Email, "welcome_page.html", contentInput)
 	if err != nil {
 		logger.Error(err)
 		return &proto.StatusResponse{Status: false}, status.Error(codes.Internal, "failed to send message: "+err.Error())
@@ -31,11 +28,18 @@ func (h *Handler) SendWelcome(ctx context.Context, input *proto.ContentInput) (*
 	return &proto.StatusResponse{Status: true}, nil
 }
 
-func (h *Handler) SendQR(ctx context.Context, input *proto.ContentInput) (*proto.StatusResponse, error) {
-	if input.Email == "" {
-		return nil, status.Error(codes.InvalidArgument, "email is required")
+func (h *Handler) SendQR(ctx context.Context, input *proto.QRInput) (*proto.StatusResponse, error) {
+	if input.GetReservationID() == "" {
+		return nil, status.Error(codes.InvalidArgument, "user id is required")
 	}
-	err := h.Service.Mailer.Send(input.GetEmail(), "qr_code.html", input.GetContent())
+	if input.GetUserID() == "" {
+		return nil, status.Error(codes.InvalidArgument, "reservation id is required")
+	}
+	if input.GetQRUrlBase() == "" {
+		return nil, status.Error(codes.InvalidArgument, "url base is required")
+	}
+
+	err := h.Service.Mailer.SendQR("qr_code_email_template.html", ctx, input.GetUserID(), input.GetReservationID(), input.GetQRUrlBase())
 	if err != nil {
 		logger.Error(err)
 		return nil, status.Error(codes.Internal, "failed to send message: "+err.Error())
@@ -43,10 +47,23 @@ func (h *Handler) SendQR(ctx context.Context, input *proto.ContentInput) (*proto
 	return &proto.StatusResponse{Status: true}, nil
 }
 
-func (h *Handler) SendAuthCode(ctx context.Context, input *proto.EmailInput) (*proto.StatusResponse, error) {
+func (h *Handler) SendAuthCode(ctx context.Context, input *proto.ContentInput) (*proto.StatusResponse, error) {
+	if input.GetEmail() == "" {
+		return nil, status.Error(codes.InvalidArgument, "email is required")
+	}
+	if input.GetContent() == "" {
+		return nil, status.Error(codes.InvalidArgument, "content is required")
+	}
+	contentInput := domain.ContentInput{
+		Content: input.GetContent(),
+	}
+
+	err := h.Service.Mailer.Send(input.Email, "verification_code.html", contentInput)
+	if err != nil {
+		logger.Error(err)
+		return &proto.StatusResponse{Status: false}, status.Error(codes.Internal, "failed to send message: "+err.Error())
+	}
 	return &proto.StatusResponse{Status: true}, nil
-	// getUser
-	// advert?
 }
 
 func (h *Handler) SendReminder(ctx context.Context, input *proto.EmailInput) (*proto.StatusResponse, error) {

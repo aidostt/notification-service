@@ -1,3 +1,28 @@
+{{ define "subject" }}Your QR Code{{ end }}
+
+{{ define "plainBody" }}
+Dear {{ .User.Name }} {{ .User.Surname }},
+
+Thank you for making a reservation at {{ .Restaurant.Name }}.
+
+Here are the details of your reservation:
+
+- Name: {{ .User.Name }} {{ .User.Surname }}
+- Reservation Date: {{ .Restaurant.ReservationTime | date "Jan 02, 2006" }}
+- Reservation Time: {{ .Restaurant.ReservationTime | time "15:04 PM" }}
+- Duration: 60 Mins
+- Table Number: T-{{ .Restaurant.Table }}
+
+Please scan your QR code upon arrival:
+{{ .QR }}
+
+Thank you for choosing us!
+
+Best regards,
+reservista
+{{ end }}
+
+{{ define "htmlBody" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,11 +70,11 @@
             margin: 0 auto;
             height: 1px;
             background: repeating-linear-gradient(
-                90deg,
-                #00000036,
-                #00000036 10px,
-                transparent 10px,
-                transparent 20px
+                    90deg,
+                    #00000036,
+                    #00000036 10px,
+                    transparent 10px,
+                    transparent 20px
             );
         }
         .footer {
@@ -75,75 +100,72 @@
     </style>
 </head>
 <body>
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="background-color: #000000; height: 100vh;">
-        <tr>
-            <td align="center">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="ticket">
-                    <tr>
-                        <td class="padding">
-                            <div class="qr-code">
-                                <img src="https://via.placeholder.com/150" alt="QR Code" />
-                            </div>
-                            <p style="font-size: 14px">Please scan your QR Code in Restaurant.</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                <tr>
-                                    <td width="15%" align="left" style="padding: 0;">
-                                        <div class="left-circle"></div>
-                                    </td>
-                                    <td width="70%">
-                                        <div class="dash"></div>
-                                    </td>
-                                    <td width="15%" align="right" style="padding: 0;">
-                                        <div class="right-circle"></div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="padding">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="details">
-                                <tr>
-                                    <td width="50%"><span>Name</span></td>
-                                    <td width="50%">Esther Howard</td>
-                                </tr>
-                                <tr>
-                                    <td><span>Date</span></td>
-                                    <td>Jan 04, 2024</td>
-                                </tr>
-                                <tr>
-                                    <td><span>Time</span></td>
-                                    <td>17:00 PM</td>
-                                </tr>
-                                <tr>
-                                    <td><span>Duration</span></td>
-                                    <td>60 Mins</td>
-                                </tr>
-                                <tr>
-                                    <td><span>Table Number</span></td>
-                                    <td>T-02</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0 20px; color:#323232; font-size: 14px;">
-                            <span>Reservation ID</span> 123456789
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="footer padding">
-                            <p>Thank you for choosing us!</p>
-                            <p>reservista</p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="background-color: #000000; height: 100vh;">
+    <tr>
+        <td align="center">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="ticket">
+                <tr>
+                    <td class="padding">
+                        <div class="qr-code">
+                            <img src="data:image/png;base64,{{ .QRCodeBase64 }}" alt="QR Code" />
+                        </div>
+                        <p style="font-size: 14px">Please scan your QR Code in Restaurant.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                                <td width="15%" align="left" style="padding: 0;">
+                                    <div class="left-circle"></div>
+                                </td>
+                                <td width="70%">
+                                    <div class="dash"></div>
+                                </td>
+                                <td width="15%" align="right" style="padding: 0;">
+                                    <div class="right-circle"></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="padding">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="details">
+                            <tr>
+                                <td width="50%"><span>Name</span></td>
+                                <td width="50%">{{ .User.Name }} {{ .User.Surname }}</td>
+                            </tr>
+                            <tr>
+                                <td><span>Date</span></td>
+                                <td>{{ .Restaurant.ReservationTime | date "Jan 02, 2006" }}</td>
+                            </tr>
+                            <tr>
+                                <td><span>Time</span></td>
+                                <td>{{ .Restaurant.ReservationTime | time "15:04 PM" }}</td>
+                            </tr>
+                            <tr>
+                                <td><span>Duration</span></td>
+                                <td>60 Mins</td>
+                            </tr>
+                            <tr>
+                                <td><span>Table Number</span></td>
+                                <td>T-{{ .Restaurant.Table }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="footer padding">
+                        <p>Thank you for choosing us!</p>
+                        <p>reservista</p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 </body>
 </html>
+{{ end }}

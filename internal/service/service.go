@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"notification-service/pkg/dialog"
+	"os"
 )
 
 type Mailer interface {
-	Send(recipient, templateFile string, data interface{}) error
+	Send(recipient, templateFile string, qrCode *os.File, data interface{}) error
 	SendQR(string, context.Context, string, string, string) error
-	GenerateQRCodeBase64(string) (string, error)
 }
 
 type Services struct {

@@ -29,6 +29,8 @@ func Run(configPath, envPath string) {
 
 	dial := dialog.NewDialog(cfg.Authority,
 		fmt.Sprintf("%v:%v", cfg.QRs.Host, cfg.QRs.Port),
+		fmt.Sprintf("%v:%v", cfg.Reservations.Host, cfg.Reservations.Port),
+		fmt.Sprintf("%v:%v", cfg.Users.Host, cfg.Users.Port),
 	)
 
 	services := service.NewService(service.Dependencies{

@@ -8,14 +8,13 @@ Thank you for making a reservation at {{ .Restaurant.Name }}.
 Here are the details of your reservation:
 
 - Name: {{ .User.Name }} {{ .User.Surname }}
-- Reservation Date: {{ .Restaurant.ReservationTime | date "Jan 02, 2006" }}
-- Reservation Time: {{ .Restaurant.ReservationTime | time "15:04 PM" }}
+- Reservation Date: {{ .Reservation.ReservationDate }}
+- Reservation Time: {{ .Reservation.ReservationTime }}
 - Duration: 60 Mins
 - Table Number: T-{{ .Restaurant.Table }}
 
 Please scan your QR code upon arrival:
 {{ .QR }}
-
 Thank you for choosing us!
 
 Best regards,
@@ -37,10 +36,13 @@ reservista
             padding: 0;
             background-color: #000000;
         }
+        table {
+            table-layout: fixed;
+        }
         .ticket {
             background-color: #ffffff;
             width: 100%;
-            max-width: 300px;
+            max-width: 400px;
             border-radius: 10px;
             text-align: center;
             margin: 0 auto;
@@ -55,15 +57,21 @@ reservista
         .qr-code {
             margin-bottom: 20px;
         }
+        .margin-top-20 {
+            margin-top: 20px;
+        }
         .details {
             text-align: left;
             font-size: 14px;
-            margin-top: 20px;
         }
         .details span {
             font-weight: bold;
-            color: #333;
+            color: #979797;
             padding-bottom: 5px;
+        }
+        .details td {
+            width: 50%;
+            text-wrap: wrap;
         }
         .dash {
             width: 250px;
@@ -97,6 +105,16 @@ reservista
             background-color: #000000;
             border-radius: 150px 0 0 150px;
         }
+        .bold {
+            font-weight: bold;
+        }
+        .hl {
+            height: 1px;
+            width: 100%;
+            margin: 10px 0;
+            background-color: #00000017;
+            margin: 10px auto;
+        }
     </style>
 </head>
 <body>
@@ -107,7 +125,7 @@ reservista
                 <tr>
                     <td class="padding">
                         <div class="qr-code">
-                            <img src="data:image/png;base64,{{ .QRCodeBase64 }}" alt="QR Code" />
+                            <img src="cid:qrcode" alt="QR Code" />
                         </div>
                         <p style="font-size: 14px">Please scan your QR Code in Restaurant.</p>
                     </td>
@@ -133,24 +151,62 @@ reservista
                     <td class="padding">
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="details">
                             <tr>
-                                <td width="50%"><span>Name</span></td>
-                                <td width="50%">{{ .User.Name }} {{ .User.Surname }}</td>
+                                <td><span>Name</span></td>
+                                <td class="bold" align="right">{{ .User.Name }} {{ .User.Surname }}</td>
+                            </tr>
+                            <tr>
+                                <td><span>Phone Number</span></td>
+                                <td class="bold" align="right">{{ .User.Phone }}</td>
+                            </tr>
+                            <tr>
+                                <td><span>Email</span></td>
+                                <td class="bold" align="right">{{ .User.Name }}</td>
+                            </tr>
+                        </table>
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                                <td><div class="hl"></div></td>
+                            </tr>
+                        </table>
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="details">
+                            <tr>
+                                <td><span>Restaurant</span></td>
+                                <td class="bold" align="right">{{ .Restaurant.Name }}</td>
+                            </tr>
+                            <tr>
+                                <td><span>Address</span></td>
+                                <td class="bold" align="right">{{ .Restaurant.Address }}</td>
+                            </tr>
+                            <tr>
+                                <td><span>Contact Number</span></td>
+                                <td class="bold" align="right">{{ .Restaurant.Phone }}</td>
+                            </tr>
+                        </table>
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                                <td><div class="hl"></div></td>
+                            </tr>
+                        </table>
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="details">
+                            <tr>
+                                <td><span>Reservation ID</span></td>
+                                <td class="bold" align="right">{{ .Reservation.ReservationID }}</td>
                             </tr>
                             <tr>
                                 <td><span>Date</span></td>
-                                <td>{{ .Restaurant.ReservationTime | date "Jan 02, 2006" }}</td>
+                                <td class="bold" align="right">{{ .Reservation.ReservationDate }}</td>
                             </tr>
                             <tr>
                                 <td><span>Time</span></td>
-                                <td>{{ .Restaurant.ReservationTime | time "15:04 PM" }}</td>
+                                <td class="bold" align="right">{{ .Reservation.ReservationTime }}</td>
                             </tr>
                             <tr>
                                 <td><span>Duration</span></td>
-                                <td>60 Mins</td>
+                                <td class="bold" align="right">60 Mins</td>
                             </tr>
                             <tr>
                                 <td><span>Table Number</span></td>
-                                <td>T-{{ .Restaurant.Table }}</td>
+                                <td class="bold" align="right">{{ .Restaurant.Table }}</td>
                             </tr>
                         </table>
                     </td>

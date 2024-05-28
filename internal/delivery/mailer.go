@@ -20,7 +20,7 @@ func (h *Handler) SendWelcome(ctx context.Context, input *proto.ContentInput) (*
 		Content: input.GetContent(),
 	}
 
-	err := h.Service.Mailer.Send(input.Email, "welcome_page.html", contentInput)
+	err := h.Service.Mailer.Send(input.Email, "welcome_page.html", nil, contentInput)
 	if err != nil {
 		logger.Error(err)
 		return &proto.StatusResponse{Status: false}, status.Error(codes.Internal, "failed to send message: "+err.Error())
@@ -58,7 +58,7 @@ func (h *Handler) SendAuthCode(ctx context.Context, input *proto.ContentInput) (
 		Content: input.GetContent(),
 	}
 
-	err := h.Service.Mailer.Send(input.Email, "verification_code.html", contentInput)
+	err := h.Service.Mailer.Send(input.Email, "verification_code.html", nil, contentInput)
 	if err != nil {
 		logger.Error(err)
 		return &proto.StatusResponse{Status: false}, status.Error(codes.Internal, "failed to send message: "+err.Error())

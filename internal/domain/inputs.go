@@ -5,9 +5,10 @@ type ContentInput struct {
 }
 
 type QRCodeMailInput struct {
-	QRCodeBase64 string
-	User         UserInfo
-	Restaurant   RestaurantInfo
+	QR          []byte
+	User        UserInfo
+	Restaurant  RestaurantInfo
+	Reservation ReservationInfo
 }
 
 type UserInfo struct {
@@ -17,10 +18,15 @@ type UserInfo struct {
 	Email   string
 }
 
-type RestaurantInfo struct {
-	Name            string
-	Address         string
-	Contact         string
-	Table           int32
+type ReservationInfo struct {
 	ReservationTime string
+	ReservationDate string
+	ReservationID   string
+}
+
+type RestaurantInfo struct {
+	Name    string
+	Address string
+	Phone   string
+	Table   int32
 }

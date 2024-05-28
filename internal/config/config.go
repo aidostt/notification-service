@@ -17,19 +17,21 @@ const (
 	defaultHTTPRWTimeout          = 10 * time.Second
 	defaultHTTPMaxHeaderMegabytes = 1
 
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
+	envLocal  = "local"
+	envDev    = "dev"
+	envProd   = "prod"
 	authority = "notification-microservice"
 )
 
 type (
 	Config struct {
-		Environment string
-		GRPC        GRPCConfig `mapstructure:"grpc"`
-		SMTP        SMTPConfig `mapstructure:"smtp"`
-		Authority   string
-		QRs         MicroserviceConfig `mapstructure:"qrMicroservice"`
+		Environment  string
+		GRPC         GRPCConfig `mapstructure:"grpc"`
+		SMTP         SMTPConfig `mapstructure:"smtp"`
+		Authority    string
+		QRs          MicroserviceConfig `mapstructure:"qrMicroservice"`
+		Users        MicroserviceConfig `mapstructure:"userMicroservice"`
+		Reservations MicroserviceConfig `mapstructure:"reservationMicroservice"`
 	}
 
 	SMTPConfig struct {
@@ -74,6 +76,12 @@ func unmarshal(cfg *Config) error {
 	}
 
 	if err := viper.UnmarshalKey("qrMicroservice", &cfg.QRs); err != nil {
+		return err
+	}
+	if err := viper.UnmarshalKey("reservationMicroservice", &cfg.Reservations); err != nil {
+		return err
+	}
+	if err := viper.UnmarshalKey("userMicroservice", &cfg.Users); err != nil {
 		return err
 	}
 

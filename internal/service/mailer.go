@@ -4,16 +4,14 @@ import (
 	"bytes"
 	"context"
 	"embed"
-	"encoding/base64"
+	"fmt"
 	proto_qr "github.com/aidostt/protos/gen/go/reservista/qr"
 	proto_reservation "github.com/aidostt/protos/gen/go/reservista/reservation"
 	proto_user "github.com/aidostt/protos/gen/go/reservista/user"
-	"github.com/skip2/go-qrcode"
 	"html/template"
-	"image/png"
 	"notification-service/internal/domain"
 	"notification-service/pkg/dialog"
-	"notification-service/pkg/logger"
+	"os"
 	"time"
 
 	gomail "github.com/go-mail/mail"
@@ -42,7 +40,7 @@ func NewMailerService(host string, port int, username, password, sender string, 
 	}
 }
 
-func (s *MailerService) Send(recipient, templateFile string, data any) error {
+func (s *MailerService) Send(recipient, templateFile string, qrCode *os.File, data any) error {
 	tmpl, err := template.New("email").ParseFS(templateFS, templatesPath+templateFile)
 	if err != nil {
 		return err
@@ -72,14 +70,28 @@ func (s *MailerService) Send(recipient, templateFile string, data any) error {
 	msg.SetBody("text/plain", plainBody.String())
 	msg.AddAlternative("text/html", htmlBody.String())
 	errChan := make(chan error)
-
-	go func() {
-		defer close(errChan)
-		var err error
-		err = s.dialer.DialAndSend(msg)
-		errChan <- err
-		return
-	}()
+	if qrCode != nil {
+		defer qrCode.Close()
+		defer os.Remove(qrCode.Name())
+		msg.Embed(qrCode.Name(), gomail.SetHeader(map[string][]string{
+			"Content-ID": {"<qrcode>"},
+		}))
+		go func() {
+			defer close(errChan)
+			var err error
+			err = s.dialer.DialAndSend(msg)
+			errChan <- err
+			return
+		}()
+	} else {
+		go func() {
+			defer close(errChan)
+			var err error
+			err = s.dialer.DialAndSend(msg)
+			errChan <- err
+			return
+		}()
+	}
 
 	// Wait for the go routine to send an error or nil.
 	return <-errChan
@@ -92,15 +104,14 @@ func (s *MailerService) SendQR(templateFile string, ctx context.Context, userID,
 		return err
 	}
 	qrClient := proto_qr.NewQRClient(conn)
-	resp, err := qrClient.Generate(ctx, &proto_qr.GenerateRequest{
+	qrResponse, err := qrClient.Generate(ctx, &proto_qr.GenerateRequest{
 		Content: qrURLBase + reservationID,
 	})
 	if err != nil {
 		return err
 	}
-	qrCodeBase64, err := s.GenerateQRCodeBase64(string(resp.QR))
+	conn, err = s.Dialog.NewConnection(s.Dialog.Addresses.Users)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
 	userClient := proto_user.NewUserClient(conn)
@@ -111,11 +122,23 @@ func (s *MailerService) SendQR(templateFile string, ctx context.Context, userID,
 	if err != nil {
 		return err
 	}
-	reservationClient := proto_reservation.NewReservationClient(conn)
-	reservation, err := reservationClient.GetReservation(ctx, &proto_reservation.IDRequest{Id: reservationID})
+	conn, err = s.Dialog.NewConnection(s.Dialog.Addresses.Reservations)
 	if err != nil {
 		return err
 	}
+	reservationClient := proto_reservation.NewReservationClient(conn)
+	reservationResponse, err := reservationClient.GetReservation(ctx, &proto_reservation.IDRequest{Id: reservationID})
+	if err != nil {
+		return err
+	}
+	currentDate := time.Now().Format("2006-01-02")
+	reservationTime, err := time.Parse(time.RFC3339, fmt.Sprintf("%sT%s:00Z", currentDate, reservationResponse.GetReservationTime()))
+	if err != nil {
+		return err
+	}
+	formattedTime := reservationTime.Format("15:04 PM")
+	formattedDate := reservationTime.Format("Jan 02, 2006")
+
 	user := domain.UserInfo{
 		Name:    userResponse.GetName(),
 		Surname: userResponse.GetSurname(),
@@ -123,30 +146,30 @@ func (s *MailerService) SendQR(templateFile string, ctx context.Context, userID,
 		Email:   userResponse.GetEmail(),
 	}
 	restaurant := domain.RestaurantInfo{
-		Name:            reservation.Table.Restaurant.GetName(),
-		Address:         reservation.Table.Restaurant.GetAddress(),
-		Contact:         reservation.Table.Restaurant.GetContact(),
-		Table:           reservation.Table.GetTableNumber(),
-		ReservationTime: reservation.GetReservationTime(),
+		Name:    reservationResponse.Table.Restaurant.GetName(),
+		Address: reservationResponse.Table.Restaurant.GetAddress(),
+		Phone:   reservationResponse.Table.Restaurant.GetContact(),
+		Table:   reservationResponse.Table.GetTableNumber(),
 	}
-	qrInput := domain.QRCodeMailInput{
-		QRCodeBase64: qrCodeBase64,
-		User:         user,
-		Restaurant:   restaurant,
+	reservation := domain.ReservationInfo{
+		ReservationTime: formattedTime,
+		ReservationDate: formattedDate,
+		ReservationID:   reservationID,
 	}
-	return s.Send(user.Email, templateFile, qrInput)
-}
+	data := domain.QRCodeMailInput{
+		QR:          qrResponse.GetQR(),
+		User:        user,
+		Restaurant:  restaurant,
+		Reservation: reservation,
+	}
 
-func (s *MailerService) GenerateQRCodeBase64(data string) (string, error) {
-	qr, err := qrcode.New(data, qrcode.Medium)
+	tmpFile, err := os.CreateTemp("", "qrcode-*.png")
 	if err != nil {
-		return "", err
+		return err
 	}
-	var buf bytes.Buffer
-	err = png.Encode(&buf, qr.Image(256))
-	if err != nil {
-		return "", err
+
+	if _, err = tmpFile.Write(data.QR); err != nil {
+		return err
 	}
-	base64Str := base64.StdEncoding.EncodeToString(buf.Bytes())
-	return base64Str, nil
+	return s.Send(user.Email, templateFile, tmpFile, data)
 }

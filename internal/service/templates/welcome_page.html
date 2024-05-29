@@ -15,14 +15,9 @@ Thank you for choosing us!
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
             color: #333;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
         .container {
             background-color: #ffffff;
@@ -32,6 +27,7 @@ Thank you for choosing us!
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 600px;
+            margin: 40px auto;
         }
         .header {
             font-size: 24px;
@@ -53,14 +49,31 @@ Thank you for choosing us!
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">Hi, Username!</div>
-        <div class="content">
-          Welcome to reservista. Thank you for signing up. We're excited to have you on board. We are here to help you manage your reservations. Let's get started!
-        </div>
-        <a href="{{.Content}}" class="button">Get Started</a>
-
-    </div>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f3f3f3;">
+        <tr>
+            <td align="center">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="container">
+                    <tr>
+                        <td>
+                            <div class="header">Hi, Username!</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="content">
+                                Welcome to reservista. Thank you for signing up. We're excited to have you on board. We are here to help you manage your reservations. Let's get started!
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="http://localhost:3000/" class="button">Get Started</a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
 {{end}}

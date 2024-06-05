@@ -132,14 +132,16 @@ func (s *MailerService) SendQR(templateFile string, ctx context.Context, userID,
 	}
 
 	// Extract and parse the reservation time
-	reservationTimeStr := reservationResponse.GetReservationTime() // example: "18:00 PM"
+	reservationTimeStr := reservationResponse.GetReservationTime() // example: "1:00 PM"
 	reservationTime, err := time.Parse("3:04 PM", reservationTimeStr)
 	if err != nil {
 		return err
 	}
 	formattedTime := reservationTime.Format("15:04 PM")
-	formattedDate := time.Now().Format("Jan 02, 2006") // Assuming the reservation date is today
 
+	// Extract and parse the reservation date
+	reservationDate := reservationResponse.GetReservationDate().AsTime() // Converts to time.Time
+	formattedDate := reservationDate.Format("Jan 02, 2006")
 	user := domain.UserInfo{
 		Name:    userResponse.GetName(),
 		Surname: userResponse.GetSurname(),

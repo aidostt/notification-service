@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"embed"
-	"fmt"
 	proto_qr "github.com/aidostt/protos/gen/go/reservista/qr"
 	proto_reservation "github.com/aidostt/protos/gen/go/reservista/reservation"
 	proto_user "github.com/aidostt/protos/gen/go/reservista/user"
@@ -131,13 +130,15 @@ func (s *MailerService) SendQR(templateFile string, ctx context.Context, userID,
 	if err != nil {
 		return err
 	}
-	currentDate := time.Now().Format("2006-01-02")
-	reservationTime, err := time.Parse(time.RFC3339, fmt.Sprintf("%sT%s:00Z", currentDate, reservationResponse.GetReservationTime()))
+
+	// Extract and parse the reservation time
+	reservationTimeStr := reservationResponse.GetReservationTime() // example: "18:00 PM"
+	reservationTime, err := time.Parse("3:04 PM", reservationTimeStr)
 	if err != nil {
 		return err
 	}
 	formattedTime := reservationTime.Format("15:04 PM")
-	formattedDate := reservationTime.Format("Jan 02, 2006")
+	formattedDate := time.Now().Format("Jan 02, 2006") // Assuming the reservation date is today
 
 	user := domain.UserInfo{
 		Name:    userResponse.GetName(),

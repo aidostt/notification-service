@@ -3,14 +3,14 @@ grpc:
   timeout: 5s
 
 userMicroservice:
-  host: localhost
+  host: authentication-service
   port: 5050
 
 
 reservationMicroservice:
-  host: localhost
+  host: reservation-service
   port: 9090
 
 qrMicroservice:
-  host: localhost
+  host: qrcode-service
   port: 7070

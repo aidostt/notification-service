@@ -8,9 +8,11 @@ import (
 	"notification-service/internal/delivery"
 	"notification-service/internal/server"
 	"notification-service/internal/service"
+	"notification-service/internal/tracing"
 	"notification-service/pkg/dialog"
 	"notification-service/pkg/logger"
 
+	"context"
 	"errors"
 	"os"
 	"os/signal"
@@ -25,6 +27,13 @@ func Run(configPath, envPath string) {
 		logger.Error(err)
 
 		return
+	}
+
+	shutdownTracing, err := tracing.Init(context.Background(), "notification-service")
+	if err != nil {
+		logger.Errorf("tracing init: %s", err.Error())
+	} else {
+		defer func() { _ = shutdownTracing(context.Background()) }()
 	}
 
 	dial := dialog.NewDialog(cfg.Authority,

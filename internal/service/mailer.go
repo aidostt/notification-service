@@ -70,8 +70,8 @@ func (s *MailerService) Send(recipient, templateFile string, qrCode *os.File, da
 	msg.AddAlternative("text/html", htmlBody.String())
 	errChan := make(chan error)
 	if qrCode != nil {
-		defer qrCode.Close()
-		defer os.Remove(qrCode.Name())
+		defer func() { _ = qrCode.Close() }()
+		defer func() { _ = os.Remove(qrCode.Name()) }()
 		msg.Embed(qrCode.Name(), gomail.SetHeader(map[string][]string{
 			"Content-ID": {"<qrcode>"},
 		}))
@@ -98,7 +98,7 @@ func (s *MailerService) Send(recipient, templateFile string, qrCode *os.File, da
 
 func (s *MailerService) SendQR(templateFile string, ctx context.Context, userID, reservationID, qrURLBase string) error {
 	conn, err := s.Dialog.NewConnection(s.Dialog.Addresses.QRs)
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 	if err != nil {
 		return err
 	}

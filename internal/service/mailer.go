@@ -131,17 +131,11 @@ func (s *MailerService) SendQR(templateFile string, ctx context.Context, userID,
 		return err
 	}
 
-	// Extract and parse the reservation time
-	reservationTimeStr := reservationResponse.GetReservationTime() // example: "1:00 PM"
-	reservationTime, err := time.Parse("3:04 PM", reservationTimeStr)
-	if err != nil {
-		return err
-	}
-	formattedTime := reservationTime.Format("15:04 PM")
-
-	// Extract and parse the reservation date
-	reservationDate := reservationResponse.GetReservationDate().AsTime() // Converts to time.Time
-	formattedDate := reservationDate.Format("Jan 02, 2006")
+	// The reservation start is a single timestamp; derive the display time and
+	// date from it.
+	startAt := reservationResponse.GetStartAt().AsTime()
+	formattedTime := startAt.Format("15:04")
+	formattedDate := startAt.Format("Jan 02, 2006")
 	user := domain.UserInfo{
 		Name:    userResponse.GetName(),
 		Surname: userResponse.GetSurname(),

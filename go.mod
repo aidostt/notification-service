@@ -3,7 +3,7 @@ module notification-service
 go 1.23.0
 
 require (
-	github.com/aidostt/protos v0.7.0
+	github.com/aidostt/protos v0.8.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/joho/godotenv v1.5.1
 	github.com/prometheus/client_golang v1.23.2

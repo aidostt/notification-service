@@ -8,7 +8,7 @@ import (
 	"notification-service/internal/delivery"
 	"notification-service/internal/server"
 	"notification-service/internal/service"
-	"notification-service/internal/tracing"
+	"notification-service/pkg/tracing"
 	"notification-service/pkg/dialog"
 	"notification-service/pkg/logger"
 
